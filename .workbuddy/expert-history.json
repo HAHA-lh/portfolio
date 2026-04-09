@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "sessions": {
+    "cbb48698df5d43c88d834c364c1f2325": [
+      {
+        "expertId": "ContentCreator",
+        "name": "Kai",
+        "profession": "内容创作专家",
+        "avatarUrl": "https://acc-1258344699.cos.accelerate.myqcloud.com/workbuddy/experts/avatars/03-Marketing/ContentCreator/ContentCreator.png",
+        "promptUrl": "https://acc-1258344699.cos.accelerate.myqcloud.com/workbuddy/experts/experts/03-Marketing/ContentCreator/ContentCreator_zh.md",
+        "usedAt": 1775619214219,
+        "industryId": "all"
+      }
+    ]
+  },
+  "lastUpdated": 1775657512076
+}

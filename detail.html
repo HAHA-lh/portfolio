@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品详情 - DESIGNER PORTFOLIO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== 详情页专用样式 ===== */
+
+        body {
+            overflow: auto;
+            cursor: auto;
+        }
+
+        /* --- 噪点覆盖 --- */
+        .noise-overlay-detail {
+            position: fixed; inset: 0; z-index: 9999;
+            pointer-events: none;
+            opacity: 0.035;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* --- 顶部导航栏 --- */
+        .detail-nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 24px 48px;
+            transition: background 0.4s, backdrop-filter 0.4s;
+        }
+        .detail-nav.scrolled {
+            background: rgba(8,8,14,.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .nav-back {
+            display: inline-flex; align-items: center; gap: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-body);
+            font-size: .9rem;
+            letter-spacing: .05em;
+            transition: color 0.3s;
+        }
+        .nav-back:hover { color: var(--text-primary); }
+        .nav-back svg { width: 18px; height: 18px; }
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: .15em;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        /* --- Hero 区域 --- */
+        .detail-hero {
+            position: relative;
+            min-height: 60vh;
+            display: flex; align-items: flex-end;
+            padding: 80px 48px 48px;
+            background: var(--bg-dark);
+            overflow: hidden;
+        }
+        .detail-hero::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, var(--bg-dark) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .detail-hero-inner {
+            position: relative; z-index: 1;
+            max-width: 800px;
+        }
+        .detail-hero-number {
+            font-family: var(--font-display);
+            font-size: 6rem;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.2;
+            margin-bottom: 16px;
+        }
+        .detail-hero-category {
+            display: inline-block;
+            padding: 6px 18px;
+            border: 1px solid;
+            border-radius: 4px;
+            font-family: var(--font-display);
+            font-size: .75rem;
+            font-weight: 500;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .detail-hero-category.tag-3d { border-color: var(--tag-3d); color: var(--tag-3d); }
+        .detail-hero-category.tag-2d { border-color: var(--tag-2d); color: var(--tag-2d); }
+        .detail-hero-category.tag-film { border-color: var(--tag-film); color: var(--tag-film); }
+        .detail-hero-category.tag-ai { border-color: var(--tag-ai); color: var(--tag-ai); }
+        .detail-hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -.02em;
+            margin-bottom: 24px;
+        }
+        .detail-hero-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        /* --- 作品元数据栏 --- */
+        .detail-meta-bar {
+            display: flex; gap: 48px;
+            padding: 32px 48px;
+            border-top: 1px solid rgba(255,255,255,.06);
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            background: var(--bg-dark);
+        }
+        .meta-bar-item {
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .meta-bar-label {
+            font-size: .7rem;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-family: var(--font-display);
+        }
+        .meta-bar-value {
+            font-size: .95rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* --- 画廊区域 --- */
+        .detail-gallery {
+            padding: 60px 48px 80px;
+            background: var(--bg-dark);
+        }
+        .gallery-section-title {
+            font-family: var(--font-display);
+            font-size: .75rem;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 36px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .gallery-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,.08);
+        }
+
+        /* 瀑布流/网格画廊 */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: transform 0.4s var(--ease-out-expo), box-shadow 0.4s;
+            display: flex;
+            flex-direction: column;
+        }
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0,0,0,.4);
+        }
+        .gallery-item.wide {
+            grid-column: span 2;
+        }
+        .gallery-item.tall {
+            grid-row: span 2;
+        }
+        .gallery-item-media {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/10;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .gallery-item.wide .gallery-item-media {
+            aspect-ratio: 21/9;
+        }
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s var(--ease-out-expo);
+        }
+        .gallery-item:hover img,
+        .gallery-item:hover video {
+            transform: scale(1.05);
+        }
+        .gallery-item-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        .gallery-item-title {
+            font-family: var(--font-display);
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: .02em;
+            line-height: 1.3;
+        }
+        .gallery-item-desc {
+            font-size: .8rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .gallery-item-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .gallery-item-tag-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .gallery-item-tag span {
+            font-size: .7rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-family: var(--font-display);
+        }
+
+        /* 占位符样式 */
+        .gallery-placeholder {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 12px;
+            background: rgba(255,255,255,.02);
+            border: 1px dashed rgba(255,255,255,.08);
+        }
+        .gallery-placeholder svg {
+            width: 32px; height: 32px;
+            color: var(--text-dim);
+            opacity: 0.4;
+        }
+        .gallery-placeholder span {
+            font-size: .75rem;
+            color: var(--text-dim);
+            letter-spacing: .1em;
+        }
+
+        /* --- Lightbox 灯箱 --- */
+        .lightbox {
+            position: fixed; inset: 0;
+            z-index: 1000;
+            background: rgba(5,5,10,.95);
+            backdrop-filter: blur(30px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .lightbox-close {
+            position: absolute; top: 24px; right: 32px;
+            width: 48px; height: 48px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .lightbox-close:hover {
+            border-color: rgba(255,255,255,.4);
+            background: rgba(255,255,255,.05);
+        }
+        .lightbox-content {
+            max-width: 85vw; max-height: 85vh;
+            position: relative;
+        }
+        .lightbox-content img,
+        .lightbox-content video {
+            max-width: 100%; max-height: 85vh;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        .lightbox-nav {
+            position: absolute; top: 50%;
+            transform: translateY(-50%);
+            width: 48px; height: 48px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 50%;
+            background: rgba(8,8,14,.6);
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .lightbox-nav:hover {
+            border-color: rgba(255,255,255,.4);
+            background: rgba(8,8,14,.8);
+        }
+        .lightbox-prev { left: -70px; }
+        .lightbox-next { right: -70px; }
+        .lightbox-counter {
+            position: absolute; bottom: -40px; left: 50%;
+            transform: translateX(-50%);
+            font-size: .8rem;
+            color: var(--text-dim);
+            letter-spacing: .15em;
+        }
+
+        /* --- 页脚 --- */
+        .detail-footer {
+            padding: 40px 48px;
+            border-top: 1px solid rgba(255,255,255,.06);
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-dark);
+        }
+        .detail-footer p {
+            font-size: .8rem;
+            color: var(--text-dim);
+            letter-spacing: .05em;
+        }
+        .footer-socials {
+            display: flex; gap: 24px;
+        }
+        .footer-socials a {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            letter-spacing: .05em;
+            transition: color 0.3s;
+        }
+        .footer-socials a:hover { color: var(--text-primary); }
+
+        /* --- 进入动画 --- */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .fade-up:nth-child(2) { transition-delay: 0.08s; }
+        .fade-up:nth-child(3) { transition-delay: 0.16s; }
+        .fade-up:nth-child(4) { transition-delay: 0.24s; }
+        .fade-up:nth-child(5) { transition-delay: 0.32s; }
+        .fade-up:nth-child(6) { transition-delay: 0.40s; }
+        .fade-up:nth-child(7) { transition-delay: 0.48s; }
+        .fade-up:nth-child(8) { transition-delay: 0.56s; }
+        .fade-up:nth-child(9) { transition-delay: 0.64s; }
+        .fade-up:nth-child(10) { transition-delay: 0.72s; }
+
+        /* --- 响应式 --- */
+        @media (max-width: 1024px) {
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+            .gallery-item.wide { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .detail-nav { padding: 16px 24px; }
+            .detail-hero { padding: 80px 24px 32px; min-height: 50vh; }
+            .detail-hero-number { font-size: 4rem; }
+            .detail-meta-bar { padding: 24px; gap: 24px; flex-wrap: wrap; }
+            .detail-gallery { padding: 40px 24px 60px; }
+            .gallery-grid { grid-template-columns: 1fr; }
+            .gallery-item.wide { grid-column: span 1; }
+            .gallery-item.tall { grid-row: span 1; }
+            .gallery-item-info { padding: 16px; }
+            .detail-footer { padding: 32px 24px; flex-direction: column; gap: 16px; }
+            .lightbox-prev { left: 10px; }
+            .lightbox-next { right: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 噪点 -->
+    <div class="noise-overlay-detail"></div>
+
+    <!-- 顶部导航 -->
+    <nav class="detail-nav" id="detailNav">
+        <a href="index.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+            </svg>
+            返回首页
+        </a>
+        <a href="index.html" class="nav-logo">PORTFOLIO</a>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <div class="detail-hero" id="detailHero">
+        <div class="detail-hero-inner">
+            <div class="detail-hero-number fade-up" id="heroNumber">01</div>
+            <div class="detail-hero-category tag-3d fade-up" id="heroCategory">3D设计</div>
+            <h1 class="detail-hero-title fade-up" id="heroTitle">产品渲染<br>可视化</h1>
+            <p class="detail-hero-desc fade-up" id="heroDesc">为智能家居产品创建的3D渲染系列，使用Blender + Cycles光线追踪引擎，呈现极致的产品质感和光影效果。</p>
+        </div>
+    </div>
+
+    <!-- 元数据栏 -->
+    <div class="detail-meta-bar fade-up" id="metaBar">
+        <div class="meta-bar-item">
+            <span class="meta-bar-label">类别</span>
+            <span class="meta-bar-value" id="metaCategory">3D设计</span>
+        </div>
+        <div class="meta-bar-item">
+            <span class="meta-bar-label">工具</span>
+            <span class="meta-bar-value" id="metaTools">Blender / Cycles</span>
+        </div>
+        <div class="meta-bar-item">
+            <span class="meta-bar-label">年份</span>
+            <span class="meta-bar-value" id="metaYear">2024</span>
+        </div>
+        <div class="meta-bar-item">
+            <span class="meta-bar-label">作品数</span>
+            <span class="meta-bar-value" id="metaCount">10</span>
+        </div>
+    </div>
+
+    <!-- 画廊 -->
+    <div class="detail-gallery">
+        <div class="gallery-section-title fade-up">SELECTED WORKS</div>
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- JS 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="detail-footer">
+        <p>&copy; 2024 Designer. All rights reserved.</p>
+        <div class="footer-socials">
+            <a href="#">Behance</a>
+            <a href="#">ArtStation</a>
+            <a href="#">LinkedIn</a>
+        </div>
+    </div>
+
+    <!-- 灯箱 -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">&#8249;</button>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext">&#8250;</button>
+        <div class="lightbox-content" id="lightboxContent"></div>
+        <div class="lightbox-counter" id="lightboxCounter"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+    (() => {
+        'use strict';
+
+        /* ========== 作品数据 ========== */
+        const categories = {
+            1: {
+                number: '01',
+                title: '产品渲染<br>可视化',
+                category: '3D设计',
+                tagClass: 'tag-3d',
+                desc: '为智能家居产品创建的3D渲染系列，使用Blender + Cycles光线追踪引擎，呈现极致的产品质感和光影效果。',
+                tools: 'Blender / Cycles',
+                year: '2024',
+                count: 10,
+                items: [
+                    { type: 'image', label: '渲染作品 01', title: '智能家居中控屏', desc: '极简主义设计语言，展现产品在生活空间中的自然融入感', layout: 'wide' },
+                    { type: 'image', label: '渲染作品 02', title: '无线降噪耳机', desc: '金属质感细节特写，强调材质的高级触感' },
+                    { type: 'image', label: '渲染作品 03', title: '智能台灯系列', desc: '多角度光影演示，呈现可调节色温的氛围变化' },
+                    { type: 'video', label: '渲染作品 04', title: '空气净化器动态展示', desc: '360度旋转展示产品外观与内部结构' },
+                    { type: 'image', label: '渲染作品 05', title: '便携音箱场景图', desc: '户外使用场景渲染，自然光线与产品交互' , layout: 'wide' },
+                    { type: 'image', label: '渲染作品 06', title: '智能门锁特写', desc: 'CNC精工细节，指纹识别区域的微距渲染' },
+                    { type: 'image', label: '渲染作品 07', title: '智能手表表盘设计', desc: 'UI界面与表体材质的融合呈现' },
+                    { type: 'image', label: '渲染作品 08', title: '全屋智能场景', desc: '多设备联动场景，展示智能家居生态系统', layout: 'wide' },
+                    { type: 'image', label: '渲染作品 09', title: '产品包装渲染', desc: '开箱体验的三维可视化预览' },
+                    { type: 'image', label: '渲染作品 10', title: '概念产品原型', desc: '未来感工业设计概念的早期探索' },
+                ]
+            },
+            2: {
+                number: '02',
+                title: '品牌<br>宣传片',
+                category: '影视',
+                tagClass: 'tag-film',
+                desc: '从前期脚本策划到后期剪辑调色，全流程制作品牌形象宣传片，融合动态图形和实景拍摄。',
+                tools: 'Premiere / AE',
+                year: '2024',
+                count: 10,
+                items: [
+                    { type: 'video', label: '宣传片 01', title: '科技品牌年度形象片', desc: '3分钟品牌故事叙述，展现企业愿景与核心价值观', layout: 'wide' },
+                    { type: 'image', label: '宣传片 02', title: '产品发布会开场', desc: '大型LED舞台配合动态图形，营造沉浸式发布体验' },
+                    { type: 'image', label: '宣传片 03', title: '社交媒体短视频系列', desc: '竖屏适配的15秒品牌快闪内容' },
+                    { type: 'video', label: '宣传片 04', title: '企业宣传片', desc: '从办公室到生产线的全流程企业实力展示', layout: 'wide' },
+                    { type: 'image', label: '宣传片 05', title: '活动回顾视频', desc: '年度品牌活动的精彩瞬间集锦' },
+                    { type: 'image', label: '宣传片 06', title: '产品功能演示', desc: '简洁直观的产品使用场景演示' },
+                    { type: 'image', label: '宣传片 07', title: '品牌联名合作片', desc: '跨界品牌联动的创意视觉表达', layout: 'wide' },
+                    { type: 'image', label: '宣传片 08', title: '客户见证故事', desc: '真实用户使用体验的情感化叙事' },
+                    { type: 'image', label: '宣传片 09', title: '节日营销视频', desc: '节日主题的创意品牌祝福短片' },
+                    { type: 'image', label: '宣传片 10', title: '品牌纪录片', desc: '深入品牌背后的创作理念与团队故事' },
+                ]
+            },
+            3: {
+                number: '03',
+                title: '品牌视觉<br>识别系统',
+                category: '2D设计',
+                tagClass: 'tag-2d',
+                desc: '为科技品牌打造的完整视觉识别体系，包含Logo设计、色彩规范、字体系统和全套应用延展。',
+                tools: 'Illustrator / PS',
+                year: '2024',
+                count: 10,
+                items: [
+                    { type: 'image', label: '视觉识别 01', title: '科技品牌Logo系统', desc: '主Logo + 图标 + 字标的全套标志设计方案', layout: 'wide' },
+                    { type: 'image', label: '视觉识别 02', title: '色彩规范体系', desc: '主色、辅色、功能色的系统化定义与应用' },
+                    { type: 'image', label: '视觉识别 03', title: '字体规范', desc: '品牌专用字体选型与中英文排版规范' },
+                    { type: 'image', label: '视觉识别 04', title: '名片系统', desc: '管理层与普通员工的多层级名片设计' },
+                    { type: 'image', label: '视觉识别 05', title: '品牌物料延展', desc: '信纸、信封、文件夹等办公用品系统', layout: 'wide' },
+                    { type: 'image', label: '视觉识别 06', title: '导视系统设计', desc: '办公空间与环境导视标识的统一规划' },
+                    { type: 'image', label: '视觉识别 07', title: '品牌插画风格', desc: '独特的品牌插画语言与视觉元素库' },
+                    { type: 'image', label: '视觉识别 08', title: '社交媒体模板', desc: '各平台统一的社交媒体视觉模板体系', layout: 'wide' },
+                    { type: 'image', label: '视觉识别 09', title: '品牌手册', desc: '完整的品牌视觉识别规范手册设计' },
+                    { type: 'image', label: '视觉识别 10', title: '品牌周边产品', desc: 'T恤、帆布袋等品牌周边的视觉设计' },
+                ]
+            },
+            4: {
+                number: '04',
+                title: 'AI概念<br>艺术创作',
+                category: 'AI设计',
+                tagClass: 'tag-ai',
+                desc: '利用Midjourney + Stable Diffusion创作概念艺术，结合Photoshop后期精修，实现商业级视觉内容。',
+                tools: 'AI + Photoshop',
+                year: '2024',
+                count: 10,
+                items: [
+                    { type: 'image', label: 'AI作品 01', title: '赛博朋克城市', desc: '未来都市的霓虹光影与建筑氛围概念设计', layout: 'wide' },
+                    { type: 'image', label: 'AI作品 02', title: '自然生态幻想', desc: '超现实主义的自然景观与生物融合' },
+                    { type: 'image', label: 'AI作品 03', title: '抽象情绪表达', desc: '以色彩和形态传达复杂情感状态的视觉探索' },
+                    { type: 'image', label: 'AI作品 04', title: '太空殖民地概念', desc: '人类未来太空居住环境的概念可视化', layout: 'wide' },
+                    { type: 'image', label: 'AI作品 05', title: '复古未来主义', desc: '融合60年代美学与未来科技的怀旧幻想' },
+                    { type: 'image', label: 'AI作品 06', title: '微观世界', desc: '细胞级别的微观世界艺术化呈现' },
+                    { type: 'image', label: 'AI作品 07', title: '东方幻想', desc: '东方美学与AI创作的碰撞与融合', layout: 'wide' },
+                    { type: 'image', label: 'AI作品 08', title: '角色概念设计', desc: '游戏/影视角色的前期概念设定' },
+                    { type: 'image', label: 'AI作品 09', title: '建筑幻想', desc: '超越物理限制的概念建筑空间设计' },
+                    { type: 'image', label: 'AI作品 10', title: '动态海报系列', desc: 'AI生成与平面设计结合的实验性海报' },
+                ]
+            },
+            5: {
+                number: '05',
+                title: '建筑<br>可视化',
+                category: '3D设计',
+                tagClass: 'tag-3d',
+                desc: '现代商业建筑外观渲染，使用V-Ray引擎进行物理级光照模拟，从白天到夜晚的多时段展示。',
+                tools: '3ds Max / V-Ray',
+                year: '2023',
+                count: 10,
+                items: [
+                    { type: 'image', label: '建筑渲染 01', title: '商业综合体日景', desc: '现代商业建筑的外观日间渲染，强调玻璃幕墙的反射质感', layout: 'wide' },
+                    { type: 'image', label: '建筑渲染 02', title: '住宅小区鸟瞰', desc: '大型住宅项目的鸟瞰视角规划展示' },
+                    { type: 'image', label: '建筑渲染 03', title: '办公大楼夜景', desc: '城市CBD核心区域的建筑夜景灯光表现', layout: 'wide' },
+                    { type: 'image', label: '建筑渲染 04', title: '室内公共空间', desc: '酒店大堂与商业中庭的室内渲染呈现' },
+                    { type: 'image', label: '建筑渲染 05', title: '文化中心设计', desc: '地标性文化建筑的参数化设计可视化' },
+                    { type: 'image', label: '建筑渲染 06', title: '校园规划全景', desc: '教育园区总体规划的多角度展示', layout: 'wide' },
+                    { type: 'image', label: '建筑渲染 07', title: '景观设计细节', desc: '建筑周边景观环境的精致呈现' },
+                    { type: 'image', label: '建筑渲染 08', title: '建筑剖面图', desc: '建筑内部结构与空间关系的清晰展示' },
+                    { type: 'image', label: '建筑渲染 09', title: '商业街步行道', desc: '商业步行街的人视角场景化渲染', layout: 'wide' },
+                    { type: 'image', label: '建筑渲染 10', title: '黄昏氛围渲染', desc: '黄金时刻光线下的建筑氛围营造' },
+                ]
+            }
+        };
+
+        /* ========== URL 参数路由 ========== */
+        const params = new URLSearchParams(window.location.search);
+        const id = parseInt(params.get('id')) || 1;
+        const cat = categories[id] || categories[1];
+
+        /* ========== 填充页面 ========== */
+        document.title = `${cat.title.replace(/<br>/g, ' ')} - DESIGNER PORTFOLIO`;
+        document.getElementById('heroNumber').textContent = cat.number;
+        document.getElementById('heroCategory').textContent = cat.category;
+        document.getElementById('heroCategory').className = `detail-hero-category ${cat.tagClass} fade-up`;
+        document.getElementById('heroTitle').innerHTML = cat.title;
+        document.getElementById('heroDesc').textContent = cat.desc;
+        document.getElementById('metaCategory').textContent = cat.category;
+        document.getElementById('metaTools').textContent = cat.tools;
+        document.getElementById('metaYear').textContent = cat.year;
+        document.getElementById('metaCount').textContent = cat.count;
+
+        /* ========== 生成画廊网格 ========== */
+        const grid = document.getElementById('galleryGrid');
+
+        cat.items.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = `gallery-item fade-up ${item.layout || ''}`;
+
+            const tagColor = item.type === 'video' ? '#e04040' : '#8888cc';
+
+            div.innerHTML = `
+                <div class="gallery-item-media">
+                    <div class="gallery-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            ${item.type === 'video'
+                                ? '<polygon points="5,3 19,12 5,21"/><line x1="2" y1="2" x2="22" y2="22"/>'
+                                : '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>'}
+                        </svg>
+                        <span>${item.label}</span>
+                    </div>
+                </div>
+                <div class="gallery-item-info">
+                    <div class="gallery-item-tag">
+                        <div class="gallery-item-tag-dot" style="background:${tagColor}"></div>
+                        <span>${item.type === 'video' ? '视频' : '图片'}</span>
+                    </div>
+                    <div class="gallery-item-title">${item.title || item.label}</div>
+                    <div class="gallery-item-desc">${item.desc || ''}</div>
+                </div>
+            `;
+            div.addEventListener('click', () => openLightbox(i));
+            grid.appendChild(div);
+        });
+
+        /* ========== 滚动进入动画 ========== */
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        /* ========== 导航栏滚动效果 ========== */
+        const nav = document.getElementById('detailNav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 60);
+        }, { passive: true });
+
+        /* ========== Lightbox 灯箱 ========== */
+        const lightbox = document.getElementById('lightbox');
+        const lbContent = document.getElementById('lightboxContent');
+        const lbCounter = document.getElementById('lightboxCounter');
+        let currentIndex = 0;
+
+        function openLightbox(i) {
+            currentIndex = i;
+            updateLightbox();
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateLightbox() {
+            const item = cat.items[currentIndex];
+            lbContent.innerHTML = `
+                <div class="gallery-placeholder" style="width:70vw;height:60vh;max-width:900px;max-height:70vh;border-radius:12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" stroke-linecap="round" stroke-linejoin="round">
+                        ${item.type === 'video'
+                            ? '<polygon points="5,3 19,12 5,21"/><line x1="2" y1="2" x2="22" y2="22"/>'
+                            : '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>'}
+                    </svg>
+                    <span>${item.label}</span>
+                </div>
+                <div style="text-align:center;margin-top:20px;">
+                    <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--text-primary);margin-bottom:6px;">${item.title || item.label}</div>
+                    <div style="font-size:.85rem;color:var(--text-secondary);max-width:600px;margin:0 auto;">${item.desc || ''}</div>
+                </div>
+            `;
+            lbCounter.textContent = `${currentIndex + 1} / ${cat.items.length}`;
+        }
+
+        document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+        document.getElementById('lightboxPrev').addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentIndex = (currentIndex - 1 + cat.items.length) % cat.items.length;
+            updateLightbox();
+        });
+        document.getElementById('lightboxNext').addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentIndex = (currentIndex + 1) % cat.items.length;
+            updateLightbox();
+        });
+
+        // 键盘控制灯箱
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') {
+                currentIndex = (currentIndex - 1 + cat.items.length) % cat.items.length;
+                updateLightbox();
+            }
+            if (e.key === 'ArrowRight') {
+                currentIndex = (currentIndex + 1) % cat.items.length;
+                updateLightbox();
+            }
+        });
+
+        /* ========== GSAP Hero 动画 ========== */
+        gsap.from('.detail-hero-inner .fade-up', {
+            y: 40, opacity: 0,
+            duration: 1, stagger: 0.12,
+            ease: 'power3.out', delay: 0.3
+        });
+        gsap.from('#metaBar', {
+            y: 20, opacity: 0,
+            duration: 0.8,
+            ease: 'power3.out', delay: 0.8
+        });
+    })();
+    </script>
+</body>
+</html>
