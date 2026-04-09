@@ -416,10 +416,52 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
             </svg>
-            返回首页
+            <span data-i18n="navHome">返回首页</span>
         </a>
-        <a href="index.html" class="nav-logo">PORTFOLIO</a>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="index.html" class="nav-logo">PORTFOLIO</a>
+            <button class="toolbar-btn" id="themeToggle" title="Toggle theme" style="width:34px;height:34px;">
+                <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                    <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
+                </svg>
+            </button>
+            <div class="lang-switch">
+                <button class="toolbar-btn" id="langToggle" title="Language" style="width:34px;height:34px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/>
+                    </svg>
+                </button>
+                <div class="lang-dropdown" id="langDropdown">
+                    <button class="lang-option active" data-lang="zh"><span class="flag">🇨🇳</span> 中文</button>
+                    <button class="lang-option" data-lang="en"><span class="flag">🇺🇸</span> English</button>
+                </div>
+            </div>
+            <button class="toolbar-btn" id="shareBtn" title="Share" style="width:34px;height:34px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+                </svg>
+            </button>
+        </div>
     </nav>
+
+    <!-- 分享弹窗 -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-modal-box" style="position:relative;">
+            <button class="share-close-btn" id="shareClose">&times;</button>
+            <div class="share-modal-title" data-i18n="shareTitle">分享作品集</div>
+            <div class="share-url-row">
+                <input type="text" class="share-url-input" id="shareUrlInput" readonly>
+                <button class="share-copy-btn" id="shareCopyBtn" data-i18n="copyLink">复制链接</button>
+            </div>
+            <div class="share-platforms">
+                <button class="share-platform-btn" onclick="window.openShare('wechat')"><span class="share-icon">💬</span><span>微信</span></button>
+                <button class="share-platform-btn" onclick="window.openShare('weibo')"><span class="share-icon">📢</span><span>微博</span></button>
+                <button class="share-platform-btn" onclick="window.openShare('twitter')"><span class="share-icon">𝕏</span><span>Twitter</span></button>
+                <button class="share-platform-btn" onclick="window.openShare('telegram')"><span class="share-icon">✈️</span><span>Telegram</span></button>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero 区域 -->
     <div class="detail-hero" id="detailHero">
@@ -451,6 +493,23 @@
         </div>
     </div>
 
+    <!-- 搜索和筛选栏 -->
+    <div class="detail-search-bar fade-up">
+        <div class="detail-search-wrapper">
+            <span class="detail-search-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                </svg>
+            </span>
+            <input type="text" class="detail-search-input" id="detailSearch" data-i18n-placeholder="detailSearchPlaceholder" placeholder="搜索作品标题或描述...">
+        </div>
+        <div class="detail-filter-tags">
+            <button class="filter-tag active" data-filter="all" data-i18n="filterAll">全部</button>
+            <button class="filter-tag" data-filter="image" data-i18n="filterImage">图片</button>
+            <button class="filter-tag" data-filter="video" data-i18n="filterVideo">视频</button>
+        </div>
+    </div>
+
     <!-- 画廊 -->
     <div class="detail-gallery">
         <div class="gallery-section-title fade-up">SELECTED WORKS</div>
@@ -463,9 +522,11 @@
     <div class="detail-footer">
         <p>&copy; 2024 Designer. All rights reserved.</p>
         <div class="footer-socials">
-            <a href="#">Behance</a>
-            <a href="#">ArtStation</a>
-            <a href="#">LinkedIn</a>
+            <a href="https://www.behance.net/" target="_blank" rel="noopener">Behance</a>
+            <a href="https://www.artstation.com/" target="_blank" rel="noopener">ArtStation</a>
+            <a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://github.com/HAHA-lh" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a>
         </div>
     </div>
 
@@ -620,6 +681,7 @@
         cat.items.forEach((item, i) => {
             const div = document.createElement('div');
             div.className = `gallery-item fade-up ${item.layout || ''}`;
+            div.dataset.type = item.type;
 
             const tagColor = item.type === 'video' ? '#e04040' : '#8888cc';
 
@@ -744,5 +806,6 @@
         });
     })();
     </script>
+    <script src="features.js"></script>
 </body>
 </html>

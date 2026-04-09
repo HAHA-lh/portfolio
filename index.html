@@ -44,9 +44,11 @@
             </nav>
             <div class="side-nav-footer">
                 <div class="social-links">
-                    <a href="#">Behance</a>
-                    <a href="#">ArtStation</a>
-                    <a href="#">LinkedIn</a>
+                    <a href="https://www.behance.net/" target="_blank" rel="noopener">Behance</a>
+                    <a href="https://www.artstation.com/" target="_blank" rel="noopener">ArtStation</a>
+                    <a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/HAHA-lh" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a>
                 </div>
                 <p class="copyright">&copy; 2024 Designer. All rights reserved.</p>
             </div>
@@ -62,8 +64,64 @@
 
     <!-- 右下角滚动提示 -->
     <div class="scroll-hint" id="scrollHint">
-        <span>SCROLL</span>
+        <span data-i18n="scroll">SCROLL</span>
         <div class="scroll-line"></div>
+    </div>
+
+    <!-- 功能工具栏 -->
+    <div class="feature-toolbar" id="featureToolbar">
+        <button class="toolbar-btn" id="themeToggle" title="Toggle theme">
+            <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
+            </svg>
+        </button>
+        <div class="lang-switch">
+            <button class="toolbar-btn" id="langToggle" title="Language">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/>
+                </svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown">
+                <button class="lang-option active" data-lang="zh"><span class="flag">🇨🇳</span> 中文</button>
+                <button class="lang-option" data-lang="en"><span class="flag">🇺🇸</span> English</button>
+            </div>
+        </div>
+        <button class="toolbar-btn" id="shareBtn" title="Share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- 分享弹窗 -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-modal-box" style="position:relative;">
+            <button class="share-close-btn" id="shareClose">&times;</button>
+            <div class="share-modal-title" data-i18n="shareTitle">分享作品集</div>
+            <div class="share-url-row">
+                <input type="text" class="share-url-input" id="shareUrlInput" readonly>
+                <button class="share-copy-btn" id="shareCopyBtn" data-i18n="copyLink">复制链接</button>
+            </div>
+            <div class="share-platforms">
+                <button class="share-platform-btn" data-platform="wechat" onclick="window.openShare('wechat')">
+                    <span class="share-icon">💬</span>
+                    <span>微信</span>
+                </button>
+                <button class="share-platform-btn" data-platform="weibo" onclick="window.openShare('weibo')">
+                    <span class="share-icon">📢</span>
+                    <span>微博</span>
+                </button>
+                <button class="share-platform-btn" data-platform="twitter" onclick="window.openShare('twitter')">
+                    <span class="share-icon">𝕏</span>
+                    <span>Twitter</span>
+                </button>
+                <button class="share-platform-btn" data-platform="telegram" onclick="window.openShare('telegram')">
+                    <span class="share-icon">✈️</span>
+                    <span>Telegram</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- ===== 主内容 ===== -->
@@ -333,24 +391,42 @@
                     </div>
                     <div class="about-right" data-anim="fade">
                         <div class="contact-card">
-                            <h3>联系方式</h3>
+                            <h3 data-i18n="contactTitle">联系方式</h3>
                             <div class="contact-row">
-                                <span class="contact-label">邮箱</span>
+                                <span class="contact-label" data-i18n="emailLabel">邮箱</span>
                                 <a href="mailto:designer@example.com">designer@example.com</a>
                             </div>
                             <div class="contact-row">
-                                <span class="contact-label">电话</span>
+                                <span class="contact-label" data-i18n="phoneLabel">电话</span>
                                 <a href="tel:+8613800000000">+86 138 0000 0000</a>
                             </div>
                             <div class="contact-row">
-                                <span class="contact-label">地址</span>
-                                <span>北京市朝阳区</span>
+                                <span class="contact-label" data-i18n="addressLabel">地址</span>
+                                <span data-i18n="addressValue">北京市朝阳区</span>
                             </div>
                             <div class="contact-socials">
-                                <a href="#" class="social-btn">Behance</a>
-                                <a href="#" class="social-btn">ArtStation</a>
-                                <a href="#" class="social-btn">LinkedIn</a>
+                                <a href="https://www.behance.net/" target="_blank" rel="noopener" class="social-btn">Behance</a>
+                                <a href="https://www.artstation.com/" target="_blank" rel="noopener" class="social-btn">ArtStation</a>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener" class="social-btn">LinkedIn</a>
+                                <a href="https://github.com/HAHA-lh" target="_blank" rel="noopener" class="social-btn">GitHub</a>
+                                <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="social-btn">Instagram</a>
                             </div>
+                            <form class="contact-form" id="contactForm">
+                                <div class="form-group">
+                                    <label data-i18n="nameLabel">姓名</label>
+                                    <input type="text" name="name" required data-i18n-placeholder="namePlaceholder" placeholder="请输入您的姓名">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="emailField">邮箱</label>
+                                    <input type="email" name="email" required data-i18n-placeholder="emailPlaceholder" placeholder="请输入您的邮箱">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="messageLabel">留言</label>
+                                    <textarea name="message" rows="3" required data-i18n-placeholder="messagePlaceholder" placeholder="请输入留言内容..."></textarea>
+                                </div>
+                                <button type="submit" class="form-submit" data-i18n="sendBtn">发送消息</button>
+                                <div class="form-message" id="formMessage"></div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -367,6 +443,7 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="features.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
